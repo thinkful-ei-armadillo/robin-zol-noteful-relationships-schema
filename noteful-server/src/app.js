@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-const notefulRouter = require('./noteful-router/noteful-router');
+const noteRouter = require('./noteful-router/note-router');
+const folderRouter = require('./noteful-router/folder-router')
 
 const app = express();
 
@@ -14,7 +15,8 @@ app.use(morgan(morgainOption));
 app.use(helmet());
 app.use(cors());
 
-app.use('/api/noteful', notefulRouter);
+app.use('/api/noteful/notes', noteRouter);
+app.use('/api/noteful/folders', folderRouter);
 
 
 app.use(function errorHandler(error, req, res, next) {

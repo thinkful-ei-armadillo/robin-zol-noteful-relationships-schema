@@ -1,31 +1,31 @@
 
 const NotefulService = {
-  getAllNotes(knex) {
-    return knex.select("*").from("noteful_notes");
+  getAll(knex, string) {
+    return knex.select("*").from(string);
   },
-  insertNotes(knex, newNotes) {
+  insert(knex, newNotes, string) {
     return knex
       .insert(newNotes)
-      .into("noteful_notes")
+      .into(string)
       .returning("*")
       .then(rows => rows[0]);
   },
-  getById(knex, id) {
+  getById(knex, id, string) {
     return knex
-      .from("noteful")
+      .from(string)
       .select("*")
       .where("id", id)
       .first();
   },
-  deleteNotes(knex, id) {
+  delete(knex, id, string) {
     return knex
-      .from("noteful")
+      .from(string)
       .where({ id })
       .delete();
   },
-  updateNotes(knex, id, newNoteField) {
+  update(knex, id, newNoteField, string) {
     return knex
-      .from("noteful")
+      .from(string)
       .where({ id })
       .update(newNoteField);
   }

@@ -7,7 +7,7 @@ import NoteListMain from '../NoteListMain/NoteListMain'
 import NotePageMain from '../NotePageMain/NotePageMain'
 import AddFolder from '../AddFolder/AddFolder'
 import AddNote from '../AddNote/AddNote'
-import dummyStore from '../dummy-store'
+// import dummyStore from '../dummy-store'
 
 import './App.css'
 import MyContext from '../Context';
@@ -20,7 +20,7 @@ class App extends Component {
   };
   handleDelete =(id) => {
 
-    fetch(`http://localhost:9090/notes/${id}`, {
+    fetch(`http://localhost:8000/api/noteful/notes/${id}`, {
       method: 'DELETE',
       headers: {
         'content-type': 'application/json'
@@ -36,8 +36,8 @@ class App extends Component {
   componentDidMount() {
     // fake date loading from API call
     // setTimeout(() => this.setState(dummyStore), 600)
-    Promise.all([fetch('http://localhost:9090/folders'),
-      fetch('http://localhost:9090/notes')])
+    Promise.all([fetch('http://localhost:8000/api/noteful/folders'),
+      fetch('http://localhost:8000/api/noteful/notes')])
       .then(([resF,resN])=> {
         if (!resF.ok)
           return resF.json().then(e => Promise.reject(e))
@@ -48,14 +48,34 @@ class App extends Component {
           resN.json()
         ])
       })
-      .then(([folders, notes]) => { this.setState({ notes, folders }) })
+      .then(([folders, notes]) => { 
+        console.log(folders, notes);
+        const modifiedFolders = folders.map(folder => {
+          return {
+            id: folder.id,
+            name: folder.folder_name
+          }
+        })
+
+        const modifiedNotes = notes.map(note => {
+          return {
+            id: note.id,
+            name: note.note_name,
+            content: note.content,
+            folderId: note.folder_id,
+            modified: note.modified_date
+          }
+        })
+        this.setState({ notes: modifiedNotes, folders: modifiedFolders }) 
+      })
+
       .catch(err => alert('Error'))
   }
 
   renderNavRoutes() {
     return (
       <>
-        {['/', '/folder/:folderId'].map(path =>
+        {['/', '/folders/:folderId'].map(path =>
           <Route
             exact
             key={path}
@@ -64,7 +84,7 @@ class App extends Component {
           />
         )}
         <Route
-          path='/note/:noteId'
+          path='/notes/:noteId'
           render={routeProps => {
             const { noteId } = routeProps.match.params
             return (
@@ -100,7 +120,7 @@ class App extends Component {
           />
         )}
         <Route
-          path='/note/:noteId'
+          path='/notes/:noteId'
           component={NotePageMain}
           />
         <Route
